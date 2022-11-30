@@ -60,7 +60,7 @@ services:
     depends_on:
       - "kafka"
       - "db"
-  processing:
+  processor:
     image: diasdra/processor:latest
     network_mode: "host"
     ports:
