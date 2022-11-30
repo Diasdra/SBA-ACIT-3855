@@ -1,0 +1,102 @@
+openapi: 3.0.0
+servers:
+  - url: 'http://localhost:8090'
+info:
+  description: This is a simple API
+  version: "1.0.0"
+  title: Simple Inventory API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: admins
+    description: Secured Admin-only calls
+  - name: developers
+    description: Operations available to regular developers
+paths:
+  /return:
+    post:
+      tags:
+        - admins
+      summary: returns a car
+      operationId: app.returnCar
+      description: return a car to the store
+      responses:
+        '201':
+          description: car returned to store
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnCar'
+        description: Return a car
+  /car:
+    post:
+      tags:
+        - admins
+      summary: Rent a Car
+      operationId: app.rentCar
+      description: rent a car from inventory
+      responses:
+        '201':
+          description: item created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentCar'
+        description: Inventory item to add
+components:
+  schemas:
+    ReturnCar:
+      type: object
+      required:
+        - carId
+        - kilometers
+        - gasUsed
+        - cost
+        - rentDuration
+      properties:
+        CarId:
+          type: string
+        Kilometers:
+          type: integer
+        GasUsed:
+          type: integer
+        price:
+          type: integer
+        rentDuration:
+          type: integer
+    RentCar:
+      type: object
+      required:
+        - carId
+        - carType
+        - location
+        - mileage
+        - passengerLimit
+        - returnDate
+      properties:
+        carId:
+          type: string
+        carType:
+          type: string
+        location:
+          type: string
+        mileage:
+          type: integer
+        passengerLimit:
+          type: integer
+        returnDate:
+          type: string
+          format: date-time
