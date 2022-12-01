@@ -73,8 +73,8 @@ def populate_stats():
     prev_stats = results.to_dict()
     prev_time = prev_stats["last_updated"]
 
-    get_car_rentals = requests.get('http://localhost:8090/get_car_rentals?timestamp=' + prev_time, headers={'Content-Type': 'application/json'})
-    get_car_returns = requests.get('http://localhost:8090/get_car_returns?timestamp=' + prev_time, headers={'Content-Type': 'application/json'})
+    get_car_rentals = requests.get(app_config["eventstore"]["url"] + "/get_car_rentals?start_timestamp=" + prev_time + "&end_timestamp=" +current_timestamp , headers={'Content-Type': 'application/json'})
+    get_car_returns = requests.get(app_config["eventstore"]["url"] + "/get_car_returns?start_timestamp=" + prev_time + "&end_timestamp=" +current_timestamp , headers={'Content-Type': 'application/json'})
     
     
     if(get_car_returns.status_code == 200):

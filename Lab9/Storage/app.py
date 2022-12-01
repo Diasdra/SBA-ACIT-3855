@@ -9,6 +9,7 @@ from return_car import ReturnCar
 import datetime
 import logging
 import uuid
+from sqlalchemy import and_
 from logging import config
 import requests
 import yaml
@@ -74,13 +75,15 @@ def return_car(body):
 
     return NoContent, 201
 
-def get_car_returns(timestamp):
+def get_car_returns(start_timestamp, end_timestamp):
     """ Gets new returns after the timestamp """
     session = DB_SESSION()
 
-    timestamp_datetime = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-
-    readings = session.query(ReturnCar).filter(ReturnCar.date_created >=timestamp_datetime)
+    start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+     
+    readings = session.query(ReturnCar).filter(and_(ReturnCar.date_created >= start_timestamp_datetime,
+                                                    ReturnCar.date_created < end_timestamp_datetime))
 
     results_list = []
 
@@ -92,13 +95,15 @@ def get_car_returns(timestamp):
 
     return results_list, 200
 
-def get_car_rentals(timestamp):
+def get_car_rentals(start_timestamp, end_timestamp):
     """ Gets new rentals after the timestamp """
     session = DB_SESSION()
 
-    timestamp_datetime = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
-    readings = session.query(RentCar).filter(RentCar.date_created >=timestamp_datetime)
+    readings = session.query(RentCar).filter(and_(RentCar.date_created >=start_timestamp_datetime,
+                                                  RentCar.date_created < end_timestamp_datetime))
 
     results_list = []
 
@@ -112,10 +117,19 @@ def get_car_rentals(timestamp):
 
 def process_messages():
     """ Process event messages """
-    hostname = "%s:%d" % (app_config["events"]["hostname"], app_config["events"]["port"])
     
-    client = KafkaClient(hosts=hostname)
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
+    current_retry_count = 0
+    while current_retry_count < kafka_max_connection_retries:
+        logger.info(f'Attempting to connect to kafak - Attempt #{current_retry_count}')
+        try:
+            client = KafkaClient(hosts=kafka_hostname)
+            topic = client.topics[str.encode(kafka_topic)]
+            logger.info(f'Connection Attempt #{current_retry_count} successful')
+            break
+        except:
+            logger.error(f'Kafka connection failed. Attempt #{current_retry_count}')
+            time.sleep(kafka_sleep_time_before_reconnect)
+            current_retry_count += 1
     
     # Create a consume on a consumer group, that only reads new messages
     # (uncommitted messages) when the service re-starts (i.e., it doesn't

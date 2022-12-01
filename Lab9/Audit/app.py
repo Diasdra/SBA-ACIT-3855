@@ -40,11 +40,9 @@ def get_return_car_application(index):
     logger.info("Retrieving return car at index %d" % index)
     try:
         pos = 0
-        logger.info(consumer)
         for msg in consumer:
             msg_str = msg.value.decode('utf-8')
             msg = json.loads(msg_str)
-            logger.info(msg)
             if  msg["type"] == "return_car":
                 if index == pos:
                     logger.info(f'found return_car application at index {index}: {msg}')
@@ -76,7 +74,6 @@ def get_rent_car_application(index):
         for msg in consumer:
             msg_str = msg.value.decode('utf-8')
             msg = json.loads(msg_str)
-            logger.info(msg)
             if  msg["type"] == "rent_car":
                 if index == pos:
                     logger.info(f'found rent_car application at index {index}: {msg}')
