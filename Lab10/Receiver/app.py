@@ -35,6 +35,7 @@ logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
 kafka_max_connection_retries = app_config["kafka"]["max_retries"]
+kafka_sleep_time_before_reconnect = app_config["kafka"]["sleep_time"]
 current_retry_count = 0
 while current_retry_count < kafka_max_connection_retries:
     logger.info(f'Attempting to connect to kafak - Attempt #{current_retry_count}')
