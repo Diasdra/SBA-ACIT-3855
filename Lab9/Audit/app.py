@@ -48,12 +48,10 @@ def get_return_car_application(index):
                 if index == pos:
                     logger.info(f'found return_car application at index {index}: {msg}')
                     return msg, 200
-                pos+=1
-
-        logger.error("Could not find return car at index %d" % index)
+                else:
+                    pos+=1
     except:
         logger.error("No more messages found")
-        logger.error("Could not find return car at index %d" % index)
         return { "message": "Not Found"}, 404
 
 def get_rent_car_application(index):
@@ -82,11 +80,10 @@ def get_rent_car_application(index):
                 if index == pos:
                     logger.info(f'found rent_car application at index {index}: {msg}')
                     return msg, 200
-                pos+=1
-        logger.error("Could not find rent car at index %d" % index)
+                else:
+                    pos+=1
     except:
         logger.error("No more messages found")
-        logger.error("Could not find rent car at index %d" % index)
         return { "message": "Not Found"}, 404
 
 app = connexion.FlaskApp(__name__, specification_dir='')

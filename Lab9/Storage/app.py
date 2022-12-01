@@ -127,7 +127,9 @@ def process_messages():
         msg_str = msg.value.decode('utf-8')
         msg = json.loads(msg_str)
         logger.info("Message: %s" % msg)
+        
         payload = msg["payload"]
+        
         if msg["type"] == "return_car": # Change this to your event type
             #logger.info(f'Recived payload of return car: {payload}')
             return_car(payload)
