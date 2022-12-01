@@ -16,6 +16,7 @@ from logging import config
 import requests
 import yaml
 from flask_cors import CORS, cross_origin
+import sqlite3
 
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     print("In Test Environment")
@@ -43,6 +44,24 @@ logger.info("Log Conf File: %s" % log_conf_file)
 DB_ENGINE = create_engine("sqlite:///%s" %app_config["datastore"]["filename"])
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
+
+if os.path.exists('/data/health.sqlite') == False:
+    conn = sqlite3.connect('/data/health.sqlite')
+
+    c = conn.cursor()
+
+    c.execute('''
+            CREATE TABLE stats
+            (id INTEGER PRIMARY KEY ASC,
+            storage VARCHAR(200) NOT NULL,
+            receiver VARCHAR(200) NOT NULL,
+            processor VARCHAR(200) NOT NULL,
+            audit VARCHAR(200) NOT NULL,
+            last_updated VARCHAR(100) NOT NULL)
+            ''')
+            
+    conn.commit()
+    conn.close()
 
 def get_health_stats():
     """ Receives a Health req """
@@ -105,6 +124,13 @@ def check_health():
     session.commit()
     session.close()
     
+    logger.info("stat check done")
+
+def init_scheduler():
+    sched = BackgroundScheduler(daemon=True)
+    sched.add_job(check_health, 'interval', seconds=app_config['scheduler']['period_sec'])
+    sched.start()
+    
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api("openapi.yml", strict_validation=True, validate_responses=True)
 CORS(app.app)
@@ -114,4 +140,5 @@ logger = logging.getLogger('basicLogger')
 logger.debug("debug message")
 
 if __name__ == "__main__":
+    init_scheduler()
     app.run(port=8120)

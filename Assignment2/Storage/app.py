@@ -21,28 +21,15 @@ from pykafka.common import OffsetType
 from threading import Thread
 
 
-if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
-    print("In Test Environment")
-    app_conf_file = "/config/app_conf.yml"
-    log_conf_file = "/config/log_conf.yml"
-else:
-    print("In Dev Environment")
-    app_conf_file = "app_conf.yml"
-    log_conf_file = "log_conf.yml"
-
-with open(app_conf_file, 'r') as f:
-    app_config = yaml.safe_load(f.read())
-    db_config = app_config['datastore']
-
-# External Logging Configuration
-with open(log_conf_file, 'r') as f:
+with open('app_conf.yml', 'r') as f:
+  app_config = yaml.safe_load(f.read())
+  db_config = app_config["datastore"]
+  
+with open('log_conf.yml', 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
-
-logger.info("App Conf File: %s" % app_conf_file)
-logger.info("Log Conf File: %s" % log_conf_file)
 
 kafka_max_connection_retries = app_config["kafka"]["max_retries"]
 kafka_sleep_time_before_reconnect = app_config["kafka"]["sleep_time"]
