@@ -40,6 +40,7 @@ def get_return_car_application(index):
     logger.info("Retrieving return car at index %d" % index)
     try:
         pos = 0
+        logger.info(consumer)
         for msg in consumer:
             msg_str = msg.value.decode('utf-8')
             msg = json.loads(msg_str)
