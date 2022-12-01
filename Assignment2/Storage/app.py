@@ -44,11 +44,16 @@ logger = logging.getLogger('basicLogger')
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
+kafka_max_connection_retries = app_config["kafka"]["max_retries"]
+kafka_sleep_time_before_reconnect = app_config["kafka"]["sleep_time"]
 
 
 DB_ENGINE = create_engine(f"mysql+pymysql://{db_config['user']}:{db_config['password']}@{db_config['hostname']}:{db_config['port']}/{db_config['db']}")
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
+
+def get_health():
+    return 200
 
 def rent_car(body):
     """ Receives a car rental application """

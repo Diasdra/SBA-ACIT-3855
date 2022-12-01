@@ -49,7 +49,7 @@ services:
     volumes:
       - my-db:/var/lib/mysql
   receiver:
-    image: diasdra/receiver:latest
+    image: receiver:latest
     ports:
       - 8080:8080
     expose:
@@ -62,7 +62,7 @@ services:
       - /home/azureuser/config/receiver:/config
       - /home/azureuser/logs:/logs
   storage:
-    image: diasdra/storage:latest
+    image: storage:latest
     ports:
       - 8090:8090
     expose:
@@ -76,7 +76,7 @@ services:
       - /home/azureuser/config/storage:/config
       - /home/azureuser/logs:/logs
   processor:
-    image: diasdra/processor:latest
+    image: processor:latest
     network_mode: "host"
     ports:
       - 8100:8100
@@ -89,8 +89,9 @@ services:
     volumes:
       - /home/azureuser/config/processor:/config
       - /home/azureuser/logs:/logs
+      - processing-db:/data
   audit:
-    image: diasdra/audit:latest
+    image: audit:latest
     ports:
       - 8110:8110
     expose:
