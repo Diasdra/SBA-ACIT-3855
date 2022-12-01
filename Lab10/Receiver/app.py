@@ -34,11 +34,21 @@ logger = logging.getLogger('basicLogger')
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
-
-client = KafkaClient(hosts=f"{app_config['events']['hostname']}:{app_config['events']['port']}")
-topic = client.topics[str.encode(app_config['events']['topic'])]
-producer = topic.get_sync_producer()
-
+kafka_max_connection_retries = app_config["kafka"]["max_retries"]
+current_retry_count = 0
+while current_retry_count < kafka_max_connection_retries:
+    logger.info(f'Attempting to connect to kafak - Attempt #{current_retry_count}')
+    try:
+        client = KafkaClient(hosts=kafka_hostname)
+        topic = client.topics[str.encode(kafka_topic)]
+        producer = topic.get_sync_producer()
+        logger.info(f'Connection Attempt #{current_retry_count} successful')
+        break
+    except:
+        logger.error(f'Kafka connection failed. Attempt #{current_retry_count}')
+        time.sleep(kafka_sleep_time_before_reconnect)
+        current_retry_count += 1
+        
 def return_car(body):
     trace = str(uuid.uuid4())
     body['trace_id'] = trace

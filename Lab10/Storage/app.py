@@ -44,6 +44,7 @@ logger = logging.getLogger('basicLogger')
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
+kafka_max_connection_retries = app_config["kafka"]["max_retries"]
 
 
 DB_ENGINE = create_engine(f"mysql+pymysql://{db_config['user']}:{db_config['password']}@{db_config['hostname']}:{db_config['port']}/{db_config['db']}")
@@ -108,7 +109,7 @@ def get_car_returns(start_timestamp, end_timestamp):
         results_list.append(reading.to_dict())
     session.close()
 
-    logger.info("Query for Car Returns readings after %s returns %d results" %(timestamp, len(results_list)))
+    logger.info("Query for Car Returns readings after %s returns %d results" %(start_timestamp, len(results_list)))
 
     return results_list, 200
 
@@ -128,7 +129,7 @@ def get_car_rentals(start_timestamp, end_timestamp):
         results_list.append(reading.to_dict())
     session.close()
 
-    logger.info("Query for Car Rentals readings after %s returns %d results" %(timestamp, len(results_list)))
+    logger.info("Query for Car Rentals readings after %s returns %d results" %(start_timestamp, len(results_list)))
 
     return results_list, 200
 
